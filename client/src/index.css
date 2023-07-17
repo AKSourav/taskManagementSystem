@@ -1,0 +1,15 @@
+:root{
+    --backgrounColor:#1976d2
+}
+
+a{
+    text-decoration: none;
+    color: black;
+    /* text-shadow: 1px 0.5px 0.01px black; */
+    background-color: var(--backgrounColor);
+}
+
+.active{
+    font-weight: bold;
+    text-decoration: overline;
+}
