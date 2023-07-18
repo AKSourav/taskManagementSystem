@@ -15,7 +15,6 @@ function Appa({data}) {
   return (
     <div id="rootx">
       <h2>Bar Chart with D3 </h2>
-      <p>Sorting functionality won't work here</p>
       <StackedBarChart data={data} keys={keys} colors={colors} />
 
       <div className="fields">

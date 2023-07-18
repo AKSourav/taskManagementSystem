@@ -19,7 +19,7 @@ export default function DenseTable({tasks,fetchAgain,setFetchagain}) {
 
   return (
     <TableContainer component={Paper} maxWidth="lg">
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+      <Table size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
             <TableCell>ID(Click to Update)</TableCell>

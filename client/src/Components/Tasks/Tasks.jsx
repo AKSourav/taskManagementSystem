@@ -5,6 +5,7 @@ import Createtask from './Createtask';
 import { Box, Button, Container, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, Typography } from '@material-ui/core';
 import axios from 'axios';
 import { Stack } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import Dashboard from '../Dashboard/Dashboard';
 import Buffer from '../utils/Buffer';
 import SkeletonR from '../utils/SkeletonR';
@@ -126,12 +127,11 @@ const Tasks = () => {
     <>
     <div id="task_page" style={{width:"100%",height:"88.5vh",display:"flex",justifyContent:"space-between"}}>
 
-      <Button variant='outlined' maxWidth='sx' size='small' style={{fontWeight:'bold',color:'#5892ea'}} onClick={()=>setTogglefilter(!toggleFilter)}>{toggleFilter?'Close':'Filter'}</Button>
       { toggleFilter &&
-      <Container maxWidth="xs" id="task_page_filter" style={{display:'flex',alignItems:'flex-start',width:'40vh'}} >
+      <Container maxWidth="lg" id="task_page_filter" style={{display:'flex',alignItems:'flex-start',width:'40vh',height:'90vh',position:'absolute',zIndex:'99',background:'white'}} >
         <form style={{display:"flex",flexDirection:"column"}}>
           <br/>
-          <Typography variant='h6'>FILTER OPTIONS</Typography>
+          <Typography variant='h6' style={{display:'flex',width:'100%',justifyContent:'center',alignItems:'center'}}>FILTER OPTIONS <Button onClick={()=>setTogglefilter(false)} id='close_button'><CloseIcon/></Button></Typography>
           <br/>
           <TextField id="outlined-size-small" defaultValue="Small" size="small" label="Title" variant="outlined" value={title} onChange={(e)=>setTitle(e.target.value)} autoComplete='off'/>
           <br/>
@@ -193,15 +193,11 @@ const Tasks = () => {
       }
 
 
-      {toggleFilter && <hr/>}
-
-
-
-
       <Container maxWidth="lg" style={{overflow:"scroll"}}>
         <div style={{display:'flex',justifyContent:'space-between'}}>
-          {user && <Createtask fetchAgain={fetchAgain} setFetchagain={setFetchagain}/>}
-          {user && <Button variant='outlined' onClick={()=>setToggle(!toggle)}>{toggle?"Open Table":"Open Dashboard"}</Button>}
+          {user && user.admin && <Createtask fetchAgain={fetchAgain} setFetchagain={setFetchagain}/>}
+          {user && !toggleFilter && <Button variant='outlined' style={{color:'#1976d2'}} onClick={()=>setTogglefilter(!toggleFilter)}>{toggleFilter?'Close':'Filter'}</Button>}
+          {user && <Button variant='outlined' style={{color:'#1976d2'}} onClick={()=>setToggle(!toggle)}>{toggle?"Open Table":"Open Dashboard"}</Button>}
         </div>
         {loading?<Buffer/>:<>
           {user && !toggle && (tasks && tasks.length>0) && <Table tasks={tasks} fetchAgain={fetchAgain} setFetchagain={setFetchagain}/>}

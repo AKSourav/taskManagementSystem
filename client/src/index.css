@@ -13,3 +13,8 @@ a{
     font-weight: bold;
     text-decoration: overline;
 }
+
+#task_page_filter{
+    box-shadow: 1px 0.5px 8px black;
+    justify-content: center;
+}
