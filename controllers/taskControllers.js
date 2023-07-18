@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Task = require("../models/taskModel");
 const User = require("../models/userModel");
-const { connect } = require("mongoose");
+var _=require('lodash')
 
 const createTask = asyncHandler(async (req,res)=>{
     const {title, description, assignedto,deadline,completed} = req.body;
@@ -10,6 +10,8 @@ const createTask = asyncHandler(async (req,res)=>{
         res.status(400);
         throw new Error("Missing Employee details or title or days left for deadline")
     }
+
+    
 
     const admin= await User.findById(req.user._id);
     const employee= await User.findById(assignedto);
@@ -34,7 +36,7 @@ const createTask = asyncHandler(async (req,res)=>{
 
     var newTask = {
         admin: admin._id,
-        title: title.trim(),
+        title: _.capitalize(title.trim()),
         assignedto:employee._id,
         completed:completed
     };
@@ -63,7 +65,7 @@ const allTasks= asyncHandler(async (req,res)=>{
     const {title,assignedto,admin,sortby,completed} = req.query;
     // console.log(req.query);
     const options={};
-    if(title) options.title=title;
+    if(title) options.title={$regex: title, $options: "i"}
     if(assignedto) options.assignedto=assignedto;
     if(admin) options.admin=admin;
     if(req.user.admin) options.admin=req.user._id;
@@ -88,10 +90,14 @@ const allTasks= asyncHandler(async (req,res)=>{
             case 'SORT_USER_DES': {
                 if(req.user.admin)
                 {
+                    // sortOptions.assignedto={}
+                    // sortOptions.assignedto.username=-1;
                     sortOptions['assignedto.username']=-1;
                 }
                 else
                 {
+                    // sortOptions.admin={}
+                    // sortOptions.admin.username=-1
                     sortOptions['admin.username']=-1;
                 }
             }
@@ -99,10 +105,14 @@ const allTasks= asyncHandler(async (req,res)=>{
             case 'SORT_USER_ASC': {
                 if(req.user.admin)
                 {
+                    // sortOptions.assignedto={}
+                    // sortOptions.assignedto.username=1;
                     sortOptions['assignedto.username']=1;
                 }
                 else
                 {
+                    // sortOptions.admin={}
+                    // sortOptions.admin.username=-1
                     sortOptions['admin.username']=1;
                 }
             }
@@ -120,7 +130,11 @@ const allTasks= asyncHandler(async (req,res)=>{
     // console.log(sortOptions)
 
     try {
-        var tasks= await Task.find(options).populate('admin assignedto', '-password').sort(sortOptions);
+        var tasks= await Task.find(options).populate('admin assignedto', '-password').sort(sortOptions)
+        if(sortOptions["assignedto.username"])
+            tasks=await tasks.sort((p1,p2)=>(p1.assignedto.username<p2.assignedto.username)?sortOptions["assignedto.username"]*-1:(p1.assignedto.username>p2.assignedto.username)?sortOptions["assignedto.username"]*1:0);
+        if(sortOptions["admin.username"])
+            tasks=await tasks.sort((p1,p2)=>(p1.admin.username<p2.admin.username)?sortOptions["admin.username"]*-1:(p1.admin.username>p2.admin.username)?sortOptions["admin.username"]*1:0);
         res.status(200).json(tasks);
     } catch (error) {
         res.status(400)
@@ -140,7 +154,7 @@ const updateTask=asyncHandler(async(req,res)=>{
     // console.log(req.body)
 
     var count=0;
-    if(title) updates.title=title.trim();
+    if(title) updates.title=_.capitalize(title.trim());
     if(description) updates.description=description;
     if(deadline!=undefined && deadline>0){
         updates.deadline=new Date((new Date(Date.now()).getTime() + (deadline* 24 * 60 * 60 * 1000)))

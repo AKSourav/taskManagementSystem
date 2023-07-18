@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Stack } from '@mui/material';
 import Dashboard from '../Dashboard/Dashboard';
 import Buffer from '../utils/Buffer';
+import SkeletonR from '../utils/SkeletonR';
 
 const Tasks = () => {
 
@@ -22,10 +23,12 @@ const Tasks = () => {
   const [sortby,setSortby]=useState('');
   const [toggle,setToggle]= useState(false);
   const [loading,setLoading] = useState(true);
+  const [getusersloading,setGetusersloading]= useState(false);
   const [taskstatus,setTaskstatus]= useState('NA');
-  const RadioOptions=['INCOMPLETE','COMPLETE','NA']
+  const RadioOptions=['INCOMPLETE','COMPLETE','NA'];
 
-  const sortingMenu=[{value:'SORT_TITLE_DES',name:'Title(desc.)'},{value:'SORT_TITLE_ASC',name:'Title(asc.)'},{value:'SORT_USER_DES',name:'username(des.)'},{value:'SORT_USER_ASC',name:'username(asc.)'},{value:'SORT_CREATED_DES',name:'Older first'},{value:'SORT_CREATED_ASC',name:'newest first'},{value:'SORT_DEADLINE_DES',name:'Deadline(desc.)'},{value:'SORT_DEADLINE_ASC',name:'Deadline(asc.)'}]
+
+  const sortingMenu=[{value:'SORT_TITLE_DES',name:'Title(desc.)'},{value:'SORT_TITLE_ASC',name:'Title(asc.)'},{value:'SORT_USER_DES',name:'username(des.)'},{value:'SORT_USER_ASC',name:'username(asc.)'},{value:'SORT_CREATED_DES',name:'Newest first'},{value:'SORT_CREATED_ASC',name:'Older first'},{value:'SORT_DEADLINE_DES',name:'Deadline(desc.)'},{value:'SORT_DEADLINE_ASC',name:'Deadline(asc.)'}]
 
   const [toggleFilter,setTogglefilter]= useState(false);
 
@@ -69,7 +72,7 @@ const Tasks = () => {
     if(!user) return
     var url=`/api/user?searchQuery=${searchQuery}`;
     console.log(url)
-
+    setGetusersloading(true);
     try{
       if(user)
       {
@@ -87,6 +90,7 @@ const Tasks = () => {
       console.log(error)
         console.log(error.response.data.message);
     }
+    setGetusersloading(false);
   }
 
   const handleSearch=(e)=>{
@@ -124,7 +128,7 @@ const Tasks = () => {
 
       <Button variant='outlined' maxWidth='sx' size='small' style={{fontWeight:'bold',color:'#5892ea'}} onClick={()=>setTogglefilter(!toggleFilter)}>{toggleFilter?'Close':'Filter'}</Button>
       { toggleFilter &&
-      <Container maxWidth="xs" id="task_page_filter" style={{display:'flex',alignItems:'flex-start',width:'55vh'}} >
+      <Container maxWidth="xs" id="task_page_filter" style={{display:'flex',alignItems:'flex-start',width:'40vh'}} >
         <form style={{display:"flex",flexDirection:"column"}}>
           <br/>
           <Typography variant='h6'>FILTER OPTIONS</Typography>
@@ -134,12 +138,15 @@ const Tasks = () => {
            <div style={{}}>
               <TextField id="outlined-size-small" defaultValue="Small" size="small" variant='outlined'  label={(user && user.admin)?"Search Employee":"Search Admin"} value={searchQuery} onChange={handleSearch}  disabled={textDisable} autoComplete='off'/>
               {textDisable && <Button variant='outlined' onClick={clearTarget}>Clear</Button> }
-              <Stack style={{height:"100%",overflowY:'scroll'}}>
+              {getusersloading && <SkeletonR/>}
+              {!getusersloading && searchResults.length>0 && 
+                <Stack style={{height:"20vh",overflowY:'scroll'}}>
                 {searchResults.map((user)=>{
                   const color=(user.admin)?'red':'green';
                   return <Button style={{color:color}} onClick={()=>handleTarget(user)}>{user.username}</Button>
                 })}
-              </Stack>
+                </Stack>
+              }
            </div>
 
            <br/>

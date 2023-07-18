@@ -11,6 +11,7 @@ import axios from 'axios';
 import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
 import { ChatState } from '../../Context/TaskProvider';
 import { Stack } from '@mui/material';
+import SkeletonR from './SkeletonR';
 
 export default function TaskModal({task,fetchAgain,setFetchagain}) {
   var {user,Navigate}=ChatState();
@@ -22,6 +23,7 @@ export default function TaskModal({task,fetchAgain,setFetchagain}) {
   var defaultData={title:"",description:"",assignedto:"",deadline:0,completed:false};
   const [options,setOptions]= useState(defaultData);
   const [taskstatus,setTaskstatus]= useState('NA');
+  const [getusersloading,setGetusersloading]= useState(false);
 
   const RadioOptions=['INCOMPLETE','COMPLETE','NA']
   
@@ -38,6 +40,7 @@ export default function TaskModal({task,fetchAgain,setFetchagain}) {
   },[])
 
   const getUsers=async (e)=>{
+    setGetusersloading(true);
     if(!user) return
     var url=`/api/user?searchQuery=${searchQuery}`;
     console.log(url)
@@ -59,6 +62,7 @@ export default function TaskModal({task,fetchAgain,setFetchagain}) {
       console.log(error)
         console.log(error.response.data.message);
     }
+    setGetusersloading(false);
   }
 
   const handleClickOpen = () => {
@@ -197,12 +201,17 @@ export default function TaskModal({task,fetchAgain,setFetchagain}) {
                 <div style={{}}>
                     <TextField id="outlined-size-small" defaultValue="Small" size="small" variant='outlined'  label={(user && user.admin)?"Search Employee":"Search Admin"} value={searchQuery} onChange={handleSearch}  disabled={textDisable} autoComplete='off'/>
                     {textDisable && <Button variant='outlined' onClick={clearTarget}>Clear</Button> }
-                    <Stack style={{height:"100%",overflowY:'scroll',maxHeight:'15vh'}}>
-                      {searchResults.map((user)=>{
-                        const color=(user.admin)?'red':'green'
-                        return <Button style={{color:color}} key={user._id} onClick={()=>handleTarget(user)}>{user.username}</Button>
-                      })}
-                    </Stack>
+                    {getusersloading && <SkeletonR/>}
+                    
+                    {!getusersloading && searchResults.length>0 &&
+                      <Stack style={{height:"20vh",overflowY:'scroll',maxHeight:'15vh'}}>
+                        {searchResults.map((user)=>{
+                          const color=(user.admin)?'red':'green'
+                          return <Button style={{color:color}} key={user._id} onClick={()=>handleTarget(user)}>{user.username}</Button>
+                        })}
+                      </Stack>
+                    }
+
                 </div>
                 <br/>
                 <TextField variant="outlined" id="standard-basic" label="Description" value={options.description} onChange={(e)=>setOptions({...options, description:e.target.value})} autoComplete='off'/>

@@ -32,7 +32,7 @@ const registerUser = asyncHandler(async (req,res)=>{
         {
             res.status(201).json({
                 _id: user._id,
-                username:username,
+                username:username.toLowerCase(),
                 name: user.name,
                 email: user.email,
                 admin:admin,
@@ -55,7 +55,7 @@ const authUser =asyncHandler(async (req,res)=>{
     // console.log(email_username);
 
     try{
-        const user = await User.findOne({$or:[{email:email_username},{username:email_username}]});
+        const user = await User.findOne({$or:[{email:email_username.toLowerCase()},{username:email_username.toLowerCase()}]});
     
         if(user && (await user.matchPassword(password))) // Checking user and natching password if found!
         {
